@@ -20,8 +20,9 @@ func NewMySQLT() *MySQLT {
 	return &MySQLT{conn: conn}
 }
 
-func (mysql *MySQLT) Save(trabajador entities.Trabajador) error{
+func (mysql *MySQLT) Save(trabajador entities.Trabajador) error {
 	query := "INSERT INTO trabajador (nombretrabajador, posicion,telefono,correo,salario,aniosexperiencia) VALUES (?, ?,?,?,?,?)"
+	fmt.Printf("Insertando trabajador: %+v\n", trabajador)
 
 	result, err := mysql.conn.ExecutePreparedQuery(query, trabajador.Nombretrabajador, trabajador.Posicion, trabajador.Telefono, trabajador.Correo, trabajador.Salario, trabajador.Aniosexperiencia)
 	if err != nil {
@@ -46,21 +47,20 @@ func (mysql *MySQLT) GetAll() ([]entities.Trabajador, error) {
 	rows := mysql.conn.FetchRows(query)
 	defer rows.Close()
 	var trabajadores []entities.Trabajador
-    for rows.Next() {
-        var trabajador entities.Trabajador
-        if err := rows.Scan(&trabajador.Idtrabajador, &trabajador.Nombretrabajador,&trabajador.Posicion,&trabajador.Telefono,&trabajador.Correo,&trabajador.Salario,&trabajador.Aniosexperiencia); err != nil {
-            return nil, fmt.Errorf("error al escanear la fila: %w", err)
-        }
-        trabajadores = append(trabajadores, trabajador)
-    }
+	for rows.Next() {
+		var trabajador entities.Trabajador
+		if err := rows.Scan(&trabajador.Idtrabajador, &trabajador.Nombretrabajador, &trabajador.Posicion, &trabajador.Telefono, &trabajador.Correo, &trabajador.Salario, &trabajador.Aniosexperiencia); err != nil {
+			return nil, fmt.Errorf("error al escanear la fila: %w", err)
+		}
+		trabajadores = append(trabajadores, trabajador)
+	}
 
-    if err := rows.Err(); err != nil {
-        return nil, fmt.Errorf("error iterando sobre las filas: %w", err)
-    }
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error iterando sobre las filas: %w", err)
+	}
 
-    return trabajadores, nil
+	return trabajadores, nil
 }
-
 
 func (mysql *MySQLT) Update(trabajador entities.Trabajador) error {
 	query := "UPDATE trabajador SET nombretrabajador=?,posicion=?,telefono=?,correo=?,salario=?,aniosexperiencia=? WHERE idtrabajador = ?"
@@ -73,8 +73,6 @@ func (mysql *MySQLT) Update(trabajador entities.Trabajador) error {
 	log.Printf("[MySQL] - Trabajador actualizado: ID: %d, Nombre: %s, Posición: %s, Teléfono: %s, Correo: %s, Salario: %d, Años de Experiencia: %d", trabajador.Idtrabajador, trabajador.Nombretrabajador, trabajador.Posicion, trabajador.Telefono, trabajador.Correo, trabajador.Salario, trabajador.Aniosexperiencia)
 	return nil
 }
-
-
 
 func (mysql *MySQLT) Delete(trabajadorID int32) error {
 	query := "DELETE FROM trabajador WHERE idtrabajador = ?"

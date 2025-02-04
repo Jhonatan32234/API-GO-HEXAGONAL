@@ -5,6 +5,7 @@ import (
 	"demo/src/products/domain/entities"
 	"demo/src/products/infraestructure/controllers/controller_jefeproyecto"
 	"demo/src/products/infraestructure/models"
+	"fmt"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -29,6 +30,7 @@ func createJefeProyectoHandler(c *gin.Context) {
 
 	// Decodificar el JSON recibido en la estructura product
 	if err := c.ShouldBindJSON(&jefeproyectos); err != nil {
+		fmt.Println("Error en el binding de JSON:", err)
 		c.JSON(400, gin.H{"error": "Datos inválidos"})
 		return
 	}
@@ -51,17 +53,37 @@ func createJefeProyectoHandler(c *gin.Context) {
 }
 
 func listJefeProyectosHandler(c *gin.Context) {
-	ps :=  models.NewMySQLJP()
+	// Obtiene la conexión a la base de datos
+	ps := models.NewMySQLJP()
 	getAllJefeProyectos := jefeproyecto.NewListJefeProyecto(ps)
-    controller := controller_jefeproyecto.NewListJefeProyectoController(*getAllJefeProyectos)
-    jefeproyectos, err := controller.Execute()
-    // Add response handling
-    if err != nil {
-        c.JSON(500, gin.H{"error": err.Error()})
-        return
-    }
-    c.JSON(200, jefeproyectos)
+	controller := controller_jefeproyecto.NewListJefeProyectoController(*getAllJefeProyectos)
+
+	// Ejecuta el controlador para obtener la lista de jefes de proyecto
+	jefeproyectos, err := controller.Execute()
+	if err != nil {
+		c.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Convierte los jefes de proyecto en un formato con claves en minúsculas
+	converted := make([]map[string]interface{}, 0)
+
+	for _, jp := range jefeproyectos {
+		convertedJefeProyecto := map[string]interface{}{
+			"idjefeproyecto":   jp.Idjefeproyecto,
+			"nombrejefe":       jp.Nombrejefe,
+			"telefono":         jp.Telefono,
+			"correo":           jp.Correo,
+			"salario":          jp.Salario,
+			"aniosexperiencia": jp.Aniosexperiencia,
+		}
+		converted = append(converted, convertedJefeProyecto)
+	}
+
+	// Envía la respuesta con claves en minúsculas
+	c.JSON(200, converted)
 }
+
 
 
 func updateJefeProyectosHandler(c *gin.Context) {

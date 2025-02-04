@@ -5,6 +5,7 @@ import (
 	"demo/src/products/domain/entities"
 	"demo/src/products/infraestructure/controllers/controller_trabajador"
 	"demo/src/products/infraestructure/models"
+	"fmt"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -27,9 +28,11 @@ func TrabajadorRoutes( router *gin.Engine){
 func createTrabajadorHandler(c *gin.Context) {
 	var trabajadores entities.Trabajador
 
+	
 	// Decodificar el JSON recibido en la estructura product
 	if err := c.ShouldBindJSON(&trabajadores); err != nil {
-		c.JSON(400, gin.H{"error": "Datos inválidos"})
+		fmt.Println("Error en el binding de JSON:", err)
+		c.JSON(400, gin.H{"error": "Datos inválidos", "detalles": err.Error()})
 		return
 	}
 
@@ -51,17 +54,38 @@ func createTrabajadorHandler(c *gin.Context) {
 }
 
 func listTrabajadoresHandler(c *gin.Context) {
-	ps :=  models.NewMySQLT()
+	// Obtiene la conexión a la base de datos
+	ps := models.NewMySQLT()
 	getAllTrabajadores := trabajador.NewListTrabajador(ps)
-    controller := controller_trabajador.NewListTrabajadorController(*getAllTrabajadores)
-    trabajadores, err := controller.Execute()
-    // Add response handling
-    if err != nil {
-        c.JSON(500, gin.H{"error": err.Error()})
-        return
-    }
-    c.JSON(200, trabajadores)
+	controller := controller_trabajador.NewListTrabajadorController(*getAllTrabajadores)
+
+	// Ejecuta el controlador para obtener la lista de trabajadores
+	trabajadores, err := controller.Execute()
+	if err != nil {
+		c.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Convierte los trabajadores en un formato con claves en minúsculas
+	converted := make([]map[string]interface{}, 0)
+
+	for _, t := range trabajadores {
+		convertedTrabajador := map[string]interface{}{
+			"idtrabajador":     t.Idtrabajador,
+			"nombretrabajador": t.Nombretrabajador,
+			"posicion":         t.Posicion,
+			"telefono":         t.Telefono,
+			"correo":           t.Correo,
+			"salario":          t.Salario,
+			"aniosexperiencia": t.Aniosexperiencia,
+		}
+		converted = append(converted, convertedTrabajador)
+	}
+
+	// Envía la respuesta con claves en minúsculas
+	c.JSON(200, converted)
 }
+
 
 
 func updateTrabajadorHandler(c *gin.Context) {
