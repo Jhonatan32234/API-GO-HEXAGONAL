@@ -1,7 +1,13 @@
 package main
 
 import (
-	"demo/src/products/infraestructure/routes"
+	//"demo/src/client"
+	"demo/src/client"
+	"demo/src/server/infraestructure/routes"
+	//"os"
+	//"os/exec"
+	"time"
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
@@ -9,7 +15,6 @@ import (
 func main() {
 	router := gin.Default()
 
-	// Configurar CORS antes de definir las rutas
 	config := cors.Config{
 		AllowOrigins:     []string{"http://localhost:4200"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
@@ -17,9 +22,8 @@ func main() {
 		AllowCredentials: true,
 	}
 
-	router.Use(cors.New(config)) // Middleware de CORS
+	router.Use(cors.New(config)) 
 
-	// Middleware para interceptar las solicitudes OPTIONS
 	router.Use(func(c *gin.Context) {
 		if c.Request.Method == "OPTIONS" {
 			c.Header("Access-Control-Allow-Origin", "http://localhost:4200")
@@ -32,11 +36,15 @@ func main() {
 		c.Next()
 	})
 
-	// Definir rutas
 	routes.ProductRoutes(router)
 	routes.TrabajadorRoutes(router)
 	routes.JefeProyectoRoutes(router)
 
-	// Iniciar el servidor
+	go func() {
+        time.Sleep(2 * time.Second) // Esperar 2 segundos para asegurarse de que el servidor esté levantado
+        client.Run()
+    }()
+
+	
 	router.Run(":8000")
 }
