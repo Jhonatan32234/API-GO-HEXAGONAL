@@ -1,7 +1,6 @@
 package controllers_jefe
 
 import (
-	//"demo/src/server/application/jefeproyecto"
     "demo/client/jefeproyecto/application/useCase_jefe"
 	"fmt"
 	"io"
@@ -33,7 +32,6 @@ func (cec_c *CheckExperienceChangeController) Execute(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	//log.Println("Años de experiencia: ", previousExperience)
 	c.SSEvent("experience_update", fmt.Sprintf("Años de experiencia actual: %d", previousExperience))
 	c.Writer.Flush()
 
@@ -50,13 +48,11 @@ func (cec_c *CheckExperienceChangeController) Execute(c *gin.Context) {
 			case <-ticker.C:
 				currentExperience, err := cec_c.useCase.Execute(int32(jefeID))
 				if err != nil {
-					// En lugar de cerrar la conexión, simplemente registra el error
 					fmt.Fprintf(w, "event:error\ndata:%s\n\n", err.Error())
 					c.Writer.Flush()
 					return false
 				}
 
-				// Si hay un cambio en la experiencia, lo enviamos
 				if currentExperience != previousExperience {
 					previousExperience = currentExperience
 					c.SSEvent("",fmt.Sprintf("Años de experiencia actualizado: %d", currentExperience))
