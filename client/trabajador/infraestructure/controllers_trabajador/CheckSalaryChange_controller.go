@@ -1,7 +1,7 @@
-package trabajador_controller
+package controllers_trabajador
 
 import (
-	"demo/src/client/application/trabajador"
+	"demo/client/trabajador/application/useCase_trabajador"
 	"fmt"
 	"io"
 	"log"
@@ -13,10 +13,10 @@ import (
 )
 
 type CheckSalaryChangeController struct {
-	useCase trabajador.CheckSalaryChange
+	useCase useCase_trabajador.CheckSalaryChange
 }
 
-func NewCheckSalaryChangeController(useCase trabajador.CheckSalaryChange) *CheckSalaryChangeController {
+func NewCheckSalaryChangeController(useCase useCase_trabajador.CheckSalaryChange) *CheckSalaryChangeController {
 	return &CheckSalaryChangeController{useCase: useCase}
 }
 

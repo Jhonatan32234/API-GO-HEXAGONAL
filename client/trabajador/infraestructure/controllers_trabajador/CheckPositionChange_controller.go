@@ -1,7 +1,7 @@
-package trabajador_controller
+package controllers_trabajador
 
 import (
-	"demo/src/client/application/trabajador"
+	"demo/client/trabajador/application/useCase_trabajador"
 	"fmt"
 	"io"
 	"net/http"
@@ -12,10 +12,10 @@ import (
 )
 
 type CheckPositionChangeController struct {
-	useCase trabajador.CheckPositionChange
+	useCase useCase_trabajador.CheckPositionChange
 }
 
-func NewCheckPositionChangeController(useCase trabajador.CheckPositionChange) *CheckPositionChangeController {
+func NewCheckPositionChangeController(useCase useCase_trabajador.CheckPositionChange) *CheckPositionChangeController {
 	return &CheckPositionChangeController{useCase: useCase}
 }
 

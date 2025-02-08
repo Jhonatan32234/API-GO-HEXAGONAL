@@ -1,4 +1,4 @@
-package trabajador
+package useCase_trabajador
 
 import (
 	"encoding/json"
