@@ -2,7 +2,7 @@ package main
 
 import (
 	//"demo/src/client"
-	"demo/src/client"
+	"demo/client"
 	"demo/src/server/infraestructure/routes"
 	//"os"
 	//"os/exec"
@@ -41,7 +41,7 @@ func main() {
 	routes.JefeProyectoRoutes(router)
 
 	go func() {
-        time.Sleep(2 * time.Second) // Esperar 2 segundos para asegurarse de que el servidor esté levantado
+        time.Sleep(2 * time.Second) 
         client.Run()
     }()
 

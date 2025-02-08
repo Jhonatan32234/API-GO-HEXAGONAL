@@ -1,6 +1,4 @@
-package jefeproyecto
-
-
+package useCase_jefe
 
 import (
 	"encoding/json"
@@ -8,6 +6,10 @@ import (
 	"io/ioutil"
 	"net/http"
 )
+
+type ExperienceResponse struct {
+	AnosExperiencia int `json:"anosexperiencia"`
+}
 
 type CheckExperienceChange struct {
 	apiURL string
@@ -34,10 +36,10 @@ func (cec *CheckExperienceChange) Execute(jefeID int32) (int, error) {
 		return 0, err
 	}
 
-	var result map[string]int
+	var result ExperienceResponse
 	if err := json.Unmarshal(body, &result); err != nil {
 		return 0, err
 	}
 
-	return result["anosexperiencia"], nil
+	return result.AnosExperiencia, nil
 }

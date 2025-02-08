@@ -106,6 +106,7 @@ func updateTrabajadorHandler(c *gin.Context) {
 
 	// Obtener el ID desde la URL
 	if err := c.ShouldBindJSON(&trabajadores); err != nil {
+		fmt.Println("Error en el binding de JSON:", err)
 		c.JSON(400, gin.H{"error": "Datos inválidos"})
 		return
 	}

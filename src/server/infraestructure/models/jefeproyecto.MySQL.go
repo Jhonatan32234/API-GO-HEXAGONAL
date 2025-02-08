@@ -5,6 +5,7 @@ import (
 	"demo/src/server/domain/entities"
 	"fmt"
 	"log"
+	"time"
 )
 
 type MySQLJP struct {
@@ -90,16 +91,34 @@ func (mysql *MySQLJP) Delete(jefeproyectoID int32) error {
 }
 
 
-
-
 func (mysql *MySQLJP) GetExperience(jefeproyectoID int32) (int32, error) {
+    var experienciaActual int32
     query := "SELECT aniosexperiencia FROM jefeproyecto WHERE idjefeproyecto = ?"
-    row := mysql.conn.DB.QueryRow(query, jefeproyectoID)
 
-    var experiencia int32
-    if err := row.Scan(&experiencia); err != nil {
+    row := mysql.conn.DB.QueryRow(query, jefeproyectoID)
+    if err := row.Scan(&experienciaActual); err != nil {
         return 0, fmt.Errorf("error al escanear la fila: %w", err)
     }
 
-    return experiencia, nil
+    timeout := time.After(30 * time.Second) // Tiempo máximo de espera
+    ticker := time.NewTicker(2 * time.Second) // Intervalo de consulta
+    defer ticker.Stop()
+
+    for {
+        select {
+        case <-timeout:
+            return experienciaActual, nil // Retorna el valor actual si se agota el tiempo
+
+        case <-ticker.C:
+            var nuevaExperiencia int32
+            row := mysql.conn.DB.QueryRow(query, jefeproyectoID)
+            if err := row.Scan(&nuevaExperiencia); err != nil {
+                return 0, fmt.Errorf("error al escanear la fila: %w", err)
+            }
+
+            if nuevaExperiencia != experienciaActual {
+                return nuevaExperiencia, nil // Devuelve el nuevo valor si cambió
+            }
+        }
+    }
 }

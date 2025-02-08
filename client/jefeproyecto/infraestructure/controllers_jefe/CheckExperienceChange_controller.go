@@ -1,7 +1,8 @@
-package jefeproyecto_controller
+package controllers_jefe
 
 import (
-	"demo/src/client/application/jefeproyecto"
+	//"demo/src/server/application/jefeproyecto"
+    "demo/client/jefeproyecto/application/useCase_jefe"
 	"fmt"
 	"io"
 	"net/http"
@@ -12,10 +13,10 @@ import (
 )
 
 type CheckExperienceChangeController struct {
-	useCase jefeproyecto.CheckExperienceChange
+	useCase useCase_jefe.CheckExperienceChange
 }
 
-func NewCheckExperienceChangeController(useCase jefeproyecto.CheckExperienceChange) *CheckExperienceChangeController {
+func NewCheckExperienceChangeController(useCase useCase_jefe.CheckExperienceChange) *CheckExperienceChangeController {
 	return &CheckExperienceChangeController{useCase: useCase}
 }
 
@@ -32,8 +33,13 @@ func (cec_c *CheckExperienceChangeController) Execute(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+	//log.Println("Años de experiencia: ", previousExperience)
+	c.SSEvent("experience_update", fmt.Sprintf("Años de experiencia actual: %d", previousExperience))
+	c.Writer.Flush()
 
-	timeout := time.After(30 * time.Second) 
+	timeout := time.After(30 * time.Second)
+	ticker := time.NewTicker(1 * time.Second)
+	defer ticker.Stop()
 
 	c.Stream(func(w io.Writer) bool {
 		for {
@@ -41,21 +47,21 @@ func (cec_c *CheckExperienceChangeController) Execute(c *gin.Context) {
 			case <-timeout:
 				c.JSON(http.StatusNoContent, nil)
 				return false
-			default:
+			case <-ticker.C:
 				currentExperience, err := cec_c.useCase.Execute(int32(jefeID))
 				if err != nil {
-					c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+					// En lugar de cerrar la conexión, simplemente registra el error
+					fmt.Fprintf(w, "event:error\ndata:%s\n\n", err.Error())
+					c.Writer.Flush()
 					return false
 				}
 
+				// Si hay un cambio en la experiencia, lo enviamos
 				if currentExperience != previousExperience {
 					previousExperience = currentExperience
-					c.Writer.Write([]byte(fmt.Sprintf("Años de experiencia actualizado: %d\n", currentExperience)))
-					c.Writer.Flush() 
-					return false    
+					c.SSEvent("",fmt.Sprintf("Años de experiencia actualizado: %d", currentExperience))
+					c.Writer.Flush()
 				}
-
-				time.Sleep(1 * time.Second)
 			}
 		}
 	})
