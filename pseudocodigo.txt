@@ -1,0 +1,40 @@
+PSEUDOCODIGO SHORT POLLING 
+ENTIDAD: TRABAJADOR
+VALORES: SALARIO Y POSICION
+
+Inicio
+    Mientras verdadero:
+        Enviar solicitud GET a la API
+        
+        Si el código de estado es 200 OK entonces:
+            Leer la respuesta JSON
+            
+            Si hay un cambio en salario o posición entonces:
+                Devolver el nuevo valor al cliente
+            Fin si
+            
+        Sino si hay un error de estado entonces:
+            Devolver el error al cliente
+            Detener proceso
+        Fin si
+        
+        Esperar 5 segundos
+    Fin mientras
+Fin
+
+
+
+PSEUDOCODIGO LONG POOLING
+ENTIDAD: JEFE DE PROYECTO
+VALORES: AÑOS DE EXPERIENCIA
+
+
+Inicio
+    Mientras la conexión esté abierta:
+        Si hay un cambio en la experiencia entonces:
+            Responder con la experiencia actualizada
+        Sino:
+            Esperar hasta 30 segundos
+        Fin si
+    Fin mientras
+Fin
