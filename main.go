@@ -3,7 +3,9 @@ package main
 import (
 	//"demo/src/client"
 	"demo/client"
-	"demo/src/server/infraestructure/routes"
+	"demo/src/server/jefeproyecto/infraestructure/routes_jefeproyecto"
+	"demo/src/server/trabajador/infraestructure/routes_trabajador"
+
 	//"os"
 	//"os/exec"
 	"time"
@@ -36,9 +38,8 @@ func main() {
 		c.Next()
 	})
 
-	routes.ProductRoutes(router)
-	routes.TrabajadorRoutes(router)
-	routes.JefeProyectoRoutes(router)
+	routes_trabajador.TrabajadorRoutes(router)
+	routes_jefeproyecto.JefeProyectoRoutes(router)
 
 	go func() {
         time.Sleep(2 * time.Second) 

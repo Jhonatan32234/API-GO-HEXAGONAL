@@ -20,7 +20,7 @@ func NewCheckExperienceChange(apiURL string) *CheckExperienceChange {
 }
 
 func (cec *CheckExperienceChange) Execute(jefeID int32) (int, error) {
-	url := fmt.Sprintf("%s/jefeproyecto/experiencia/%d", cec.apiURL, jefeID)
+	url := fmt.Sprintf("%s/coordinador/experiencia/%d", cec.apiURL, jefeID)
 	resp, err := http.Get(url)
 	if err != nil {
 		return 0, err
